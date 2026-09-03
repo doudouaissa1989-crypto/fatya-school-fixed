@@ -36,9 +36,11 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 
 /* filter chips */
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.chip{border:1px solid var(--border);background:var(--card);border-radius:20px;padding:5px 13px;font-size:12px;font-family:inherit;color:var(--muted);cursor:pointer;white-space:nowrap}
+.chip{border:1px solid var(--border);background:var(--card);border-radius:20px;padding:5px 13px;font-size:12px;font-family:inherit;color:var(--muted);cursor:pointer;white-space:nowrap;position:relative}
 .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .chip:active{opacity:.7}
+.chip-count{background:var(--blue-bg);color:var(--blue);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:5px}
+.chip.active .chip-count{background:#fff;color:var(--accent)}
 
 .sec-hdr{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .sec-hdr span.cnt{background:var(--accent);color:#fff;border-radius:20px;padding:1px 8px;font-size:11px}
@@ -77,8 +79,8 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .empty{text-align:center;color:var(--muted);padding:2.5rem 1rem;font-size:14px}
 
 /* overlay / sheet */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center}
-.sheet{background:var(--card);border-radius:20px 20px 0 0;padding:16px 16px 40px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center}
+.sheet{background:var(--card);border-radius:20px;padding:16px 16px 40px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;margin:20px}
 .handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
 .sheet h3{font-size:17px;font-weight:700;margin-bottom:14px}
 .form-row{margin-bottom:11px}
@@ -134,15 +136,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
       <button class="clear" onclick="clearSearch()" title="مسح">&#x2715;</button>
     </div>
 
-    <div class="chips" id="chips">
-      <button class="chip active" onclick="setChip(this,'')" data-v="">الكل</button>
-      <button class="chip" onclick="setChip(this,'ابتدائي')" data-v="ابتدائي">ابتدائي</button>
-      <button class="chip" onclick="setChip(this,'متوسط')" data-v="متوسط">متوسط</button>
-      <button class="chip" onclick="setChip(this,'مقبول')" data-v="مقبول">مقبول</button>
-      <button class="chip" onclick="setChip(this,'غير مقبول')" data-v="غير مقبول">غير مقبول</button>
-      <button class="chip" onclick="setChip(this,'منسحب')" data-v="منسحب">منسحب</button>
-      <button class="chip" onclick="setChip(this,'قائمة سوداء')" data-v="قائمة سوداء">قائمة سوداء</button>
-    </div>
+    <div class="chips" id="chips"></div>
 
     <div class="sort-bar">
       <label>&#x21C5; ترتيب حسب:</label>
@@ -266,7 +260,7 @@ function deleteAll() {
     '<p style="font-size:14px;line-height:1.7;margin-bottom:16px;color:var(--muted)">'+
     'سيتم حذف <strong style="color:var(--text)">جميع بيانات التلاميذ</strong> نهائياً.<br>'+
     'هذا الإجراء <strong style="color:var(--red)">لا يمكن التراجع عنه</strong>.<br><br>'+
-    'اكتب كلمة <strong>حذف</strong> ل��تأكيد:</p>'+
+    'اكتب كلمة <strong>حذف</strong> للتأكيد:</p>'+
     '<div class="form-row"><input id="f-confirm" placeholder="اكتب: حذف"></div>'+
     '<div class="sheet-actions">'+
     '<button class="btn-cancel" onclick="closeForm()">إلغاء</button>'+
@@ -283,6 +277,46 @@ function confirmDeleteAll() {
   closeForm();
   render();
   toast('&#x1F5D1; تم حذف جميع البيانات');
+}
+
+// ── Count by filter ───────────────────────────────────────────────────────
+function countByFilter(filterValue) {
+  return DB.filter(function(r){
+    if (!filterValue) return true;
+    var hasLevel   = filterValue==='ابتدائي'||filterValue==='متوسط';
+    var hasDec     = filterValue==='مقبول'||filterValue==='غير مقبول';
+    var hasAttend  = filterValue==='منسحب'||filterValue==='قائمة سوداء';
+    if (hasLevel  && !r.children.some(function(c){return c.level===filterValue;})) return false;
+    if (hasDec    && !r.children.some(function(c){return c.decision===filterValue;})) return false;
+    if (hasAttend && !r.children.some(function(c){return c.attendance===filterValue;})) return false;
+    return true;
+  }).length;
+}
+
+// ── render chips ──────────────────────────────────────────────────────────
+function renderChips() {
+  var chipsData = [
+    {label: 'الكل', value: '', icon: ''},
+    {label: 'ابتدائي', value: 'ابتدائي', icon: ''},
+    {label: 'متوسط', value: 'متوسط', icon: ''},
+    {label: 'مقبول', value: 'مقبول', icon: ''},
+    {label: 'غير مقبول', value: 'غير مقبول', icon: ''},
+    {label: 'منسحب', value: 'منسحب', icon: ''},
+    {label: 'قائمة سوداء', value: 'قائمة سوداء', icon: ''}
+  ];
+
+  var html = '';
+  chipsData.forEach(function(chip, idx) {
+    var count = countByFilter(chip.value);
+    var activeClass = (activeChip === chip.value) ? ' active' : '';
+    if (chip.value === '') {
+      html += '<button class="chip'+activeClass+'" onclick="setChip(this,\'\')" data-v="">'+chip.label+'</button>';
+    } else {
+      html += '<button class="chip'+activeClass+'" onclick="setChip(this,\''+chip.value+'\')" data-v="'+chip.value+'"><span class="chip-count">'+count+'</span>'+chip.label+'</button>';
+    }
+  });
+  
+  document.getElementById('chips').innerHTML = html;
 }
 
 // ── chips ─────────────────────────────────────────────────────────────────
@@ -388,6 +422,7 @@ function renderCards() {
   document.getElementById('cards').innerHTML = rows.length
     ? rows.map(cardHTML).join('')
     : '<div class="empty">لا توجد نتائج</div>';
+  renderChips();
 }
 
 function render() { renderCards(); updateYearLabel(); }
