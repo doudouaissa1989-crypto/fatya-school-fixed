@@ -250,31 +250,11 @@ function saveYear() {
   render();
 }
 
-// ── delete all ────────────────────────────────────────────────────────────
+// ── delete all - فوري بدون تأكيد ────────────────────────────────────────────
 function deleteAll() {
-  var html =
-    '<div class="overlay" id="overlay" onclick="overlayClick(event)">'+
-    '<div class="sheet" onclick="event.stopPropagation()">'+
-    '<div class="handle"></div>'+
-    '<h3 style="color:var(--red)">&#x26A0;&#xFE0F; تأكيد الحذف الكامل</h3>'+
-    '<p style="font-size:14px;line-height:1.7;margin-bottom:16px;color:var(--muted)">'+
-    'سيتم حذف <strong style="color:var(--text)">جميع بيانات التلاميذ</strong> نهائياً.<br>'+
-    'هذا الإجراء <strong style="color:var(--red)">لا يمكن التراجع عنه</strong>.<br><br>'+
-    'اكتب كلمة <strong>حذف</strong> للتأكيد:</p>'+
-    '<div class="form-row"><input id="f-confirm" placeholder="اكتب: حذف"></div>'+
-    '<div class="sheet-actions">'+
-    '<button class="btn-cancel" onclick="closeForm()">إلغاء</button>'+
-    '<button class="btn-danger" onclick="confirmDeleteAll()" style="flex:2">&#x1F5D1; حذف نهائي</button>'+
-    '</div></div></div>';
-  document.getElementById('formArea').innerHTML = html;
-}
-function confirmDeleteAll() {
-  var v = document.getElementById('f-confirm').value.trim();
-  if (v !== 'حذف') { alert('يرجى كتابة كلمة "حذف" للتأكيد'); return; }
   DB = [];
   nextId = 1;
   persist();
-  closeForm();
   render();
   toast('&#x1F5D1; تم حذف جميع البيانات');
 }
@@ -608,7 +588,7 @@ function saveForm() {
   render();
 }
 
-// ── delete one ────────────────────────────────────────────────────────────
+// ── delete one ──────────────────────────��─────────────────────────────────
 function delRecord(id) {
   if (!confirm('حذف هذا السجل نهائياً؟')) return;
   DB = DB.filter(function(r){return r.id!==id;});
