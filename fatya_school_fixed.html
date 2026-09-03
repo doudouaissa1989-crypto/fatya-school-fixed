@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>مدرسة فتية</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5f5f3;--card:#fff;--border:#e4e4e2;--text:#1a1a1a;--muted:#888;--accent:#1a1a1a;
+  --green-bg:#eaf3de;--green:#3b6d11;
+  --red-bg:#fcebeb;--red:#a32d2d;
+  --amber-bg:#faeeda;--amber:#854f0b;
+  --blue-bg:#e6f1fb;--blue:#185fa5;
+  --teal-bg:#e1f5ee;--teal:#0f6e56;
+  --purple-bg:#f0eafa;--purple:#5b21b6;
+  --r:12px;--rs:8px;
+}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px;min-height:100vh}
+.app{max-width:480px;margin:0 auto;padding:0 0 80px}
+
+/* topbar */
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:8px}
+.topbar-title{font-size:16px;font-weight:700}
+.topbar-sub{font-size:11px;color:var(--muted);margin-top:1px;cursor:pointer;text-decoration:underline dotted}
+.btn-add{background:var(--accent);color:#fff;border:none;border-radius:var(--rs);padding:9px 16px;font-size:15px;font-family:inherit;cursor:pointer;min-height:44px;font-weight:700;flex-shrink:0}
+.btn-add:active{opacity:.8}
+
+.pad{padding:12px 14px 0}
+
+/* stats */
+.stats{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.stat-big{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.stat-big-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stat-big-num{font-size:32px;font-weight:700;line-height:1}
+.stat-big-lbl{font-size:13px;color:var(--muted);margin-top:3px}
+.stat-big-subs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat-sub{background:var(--bg);border-radius:var(--rs);padding:9px 12px;display:flex;align-items:center;justify-content:space-between}
+.stat-sub-lbl{font-size:12px;color:var(--muted)}
+.stat-sub-num{font-size:20px;font-weight:700}
+.stat-small{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stat-small-lbl{font-size:13px;color:var(--muted)}
+.stat-small-num{font-size:22px;font-weight:700}
+
+/* search */
+.search-box{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);display:flex;align-items:center;gap:8px;padding:0 12px;margin-bottom:8px}
+.search-box input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;padding:11px 0;background:transparent;color:var(--text)}
+.search-box input::placeholder{color:var(--muted)}
+.search-box .clear{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 2px;line-height:1}
+
+/* filter chips */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--border);background:var(--card);border-radius:20px;padding:5px 13px;font-size:12px;font-family:inherit;color:var(--muted);cursor:pointer;white-space:nowrap}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.chip:active{opacity:.7}
+
+.sec-hdr{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.sec-hdr span.cnt{background:var(--accent);color:#fff;border-radius:20px;padding:1px 8px;font-size:11px}
+
+/* parent card */
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.pcard-header{padding:14px 14px 10px;display:flex;align-items:flex-start;gap:10px}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--blue);flex-shrink:0}
+.pcard-name{font-size:16px;font-weight:700;margin-bottom:6px}
+.phones{display:flex;flex-direction:column;gap:5px}
+.phone-link{display:inline-flex;align-items:center;gap:5px;color:var(--blue);font-size:13px;font-weight:600;text-decoration:none;padding:4px 11px;background:var(--blue-bg);border-radius:20px;width:fit-content}
+.phone-link:active{opacity:.7}
+.pcard-meta{padding:0 14px 10px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-reg{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.b-accepted{background:var(--green-bg);color:var(--green)}
+.b-rejected{background:var(--red-bg);color:var(--red)}
+.b-postpone{background:var(--amber-bg);color:var(--amber)}
+.b-withdraw{background:var(--purple-bg);color:var(--purple)}
+.b-blacklist{background:#1a1a1a;color:#fff}
+.b-present{background:var(--teal-bg);color:var(--teal)}
+.b-level{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+
+.children{padding:10px 14px}
+.child-row{padding:8px 0;border-bottom:1px solid var(--border)}
+.child-row:last-child{border-bottom:none}
+.child-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.child-level{font-size:12px;color:var(--muted);margin-bottom:4px}
+.child-badges{display:flex;gap:4px;flex-wrap:wrap}
+
+.pcard-actions{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px}
+.act-btn{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:8px;font-size:13px;font-family:inherit;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:center;gap:4px;min-height:38px;font-weight:500}
+.act-btn:active{opacity:.7}
+.act-btn.danger{color:var(--red);background:var(--red-bg);border-color:#f7c1c1}
+
+.empty{text-align:center;color:var(--muted);padding:2.5rem 1rem;font-size:14px}
+
+/* overlay / sheet */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);border-radius:20px 20px 0 0;padding:16px 16px 40px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
+.handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+.sheet h3{font-size:17px;font-weight:700;margin-bottom:14px}
+.form-row{margin-bottom:11px}
+.form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px;font-weight:600}
+.form-row input,.form-row select,.form-row textarea{width:100%;font-size:15px;font-family:inherit;padding:10px 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--bg);color:var(--text);outline:none;min-height:44px}
+.form-row textarea{min-height:80px;resize:vertical;line-height:1.5}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:#555;background:#fff}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+.children-form{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;position:relative}
+.cf-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px}
+.btn-rm{position:absolute;top:10px;left:10px;background:var(--red-bg);color:var(--red);border:none;border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn-add-child{width:100%;background:var(--blue-bg);color:var(--blue);border:1px dashed var(--blue);border-radius:var(--rs);padding:10px;font-size:14px;font-family:inherit;cursor:pointer;font-weight:600;min-height:44px;margin-bottom:12px}
+.sheet-actions{display:flex;gap:8px;margin-top:14px}
+.btn-cancel{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:12px;font-size:15px;font-family:inherit;cursor:pointer;color:var(--muted);font-weight:500;min-height:48px}
+.btn-save{flex:2;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);padding:12px;font-size:15px;font-family:inherit;cursor:pointer;font-weight:700;min-height:48px}
+
+/* danger zone */
+.danger-zone{margin-top:24px;background:var(--red-bg);border:1px solid #f7c1c1;border-radius:var(--r);padding:14px}
+.danger-zone h4{font-size:14px;font-weight:700;color:var(--red);margin-bottom:8px}
+.danger-zone p{font-size:12px;color:var(--red);margin-bottom:10px;line-height:1.5}
+.btn-danger{background:var(--red);color:#fff;border:none;border-radius:var(--rs);padding:10px 16px;font-size:14px;font-family:inherit;cursor:pointer;font-weight:700;width:100%;min-height:44px}
+
+/* import/export */
+.tools-zone{margin-top:16px;background:var(--blue-bg);border:1px solid #b8d4f0;border-radius:var(--r);padding:14px}
+.tools-zone h4{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.tools-zone p{font-size:12px;color:var(--blue);margin-bottom:10px;line-height:1.5}
+.tools-actions{display:flex;gap:8px}
+.tools-actions button{flex:1;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);padding:10px;font-size:14px;font-family:inherit;cursor:pointer;font-weight:700;min-height:44px}
+.tools-actions button.export-btn{background:var(--green);color:#fff}
+.tools-actions button.import-btn{background:var(--blue);color:#fff}
+
+/* sort bar */
+.sort-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.sort-bar label{font-size:12px;color:var(--muted);font-weight:600}
+.sort-bar select{font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--rs);background:var(--card);color:var(--text);font-family:inherit}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* print */
+@media print {
+  .topbar, .search-box, .chips, .danger-zone, .tools-zone, .sort-bar, .pcard-actions { display:none !important; }
+  .pcard { break-inside: avoid; page-break-inside: avoid; border:1px solid #ccc; }
+  body { background:#fff; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">&#x1F3EB; مدرسة فتية</div>
+      <div class="topbar-sub" onclick="openYearEditor()" title="اضغط لتعديل العام الدراسي" id="year-lbl">تسجيلات التلاميذ الجدد &mdash; 2026 / 2027</div>
+    </div>
+    <button class="btn-add" onclick="openForm()">&#xFF0B; جديد</button>
+  </div>
+  <div class="pad">
+    <div class="stats" id="stats"></div>
+
+    <div class="search-box">
+      <span style="color:var(--muted);font-size:18px">&#x2315;</span>
+      <input type="search" id="search" placeholder="ابحث بالاسم أو الطور أو الحالة..." oninput="renderCards()">
+      <button class="clear" onclick="clearSearch()" title="مسح">&#x2715;</button>
+    </div>
+
+    <div class="chips" id="chips">
+      <button class="chip active" onclick="setChip(this,'')" data-v="">الكل</button>
+      <button class="chip" onclick="setChip(this,'ابتدائي')" data-v="ابتدائي">ابتدائي</button>
+      <button class="chip" onclick="setChip(this,'متوسط')" data-v="متوسط">متوسط</button>
+      <button class="chip" onclick="setChip(this,'مقبول')" data-v="مقبول">مقبول</button>
+      <button class="chip" onclick="setChip(this,'غير مقبول')" data-v="غير مقبول">غير مقبول</button>
+      <button class="chip" onclick="setChip(this,'منسحب')" data-v="منسحب">منسحب</button>
+      <button class="chip" onclick="setChip(this,'قائمة سوداء')" data-v="قائمة سوداء">قائمة سوداء</button>
+    </div>
+
+    <div class="sort-bar">
+      <label>&#x21C5; ترتيب حسب:</label>
+      <select id="sortBy" onchange="renderCards()">
+        <option value="date-desc">التاريخ (الأحدث)</option>
+        <option value="date-asc">التاريخ (الأقدم)</option>
+        <option value="name-asc">الاسم (أ-ي)</option>
+        <option value="name-desc">الاسم (ي-أ)</option>
+      </select>
+    </div>
+
+    <div class="sec-hdr">
+      <span style="color:var(--text)">السجلات</span>
+      <span class="cnt" id="cnt">0</span>
+    </div>
+    <div id="cards"></div>
+
+    <!-- tools -->
+    <div class="tools-zone">
+      <h4>&#x1F4E4; نسخ احتياطي</h4>
+      <p>صدر بياناتك إلى ملف JSON أو استورد بيانات سابقة قبل حذفها.</p>
+      <div class="tools-actions">
+        <button class="export-btn" onclick="exportData()">&#x1F4BE; تصدير</button>
+        <button class="import-btn" onclick="importData()">&#x1F4C2; استيراد</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+    </div>
+
+    <!-- danger zone -->
+    <div class="danger-zone">
+      <h4>&#x26A0;&#xFE0F; منطقة الخطر</h4>
+      <p>عند انتهاء الموسم الدراسي يمكنك حذف جميع البيانات لبدء موسم جديد. هذا الإجراء لا يمكن التراجع عنه.</p>
+      <button class="btn-danger" onclick="deleteAll()">&#x1F5D1; حذف جميع البيانات</button>
+    </div>
+  </div>
+</div>
+
+<div id="formArea"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── config ────────────────────────────────────────────────────────────────
+var CFG = JSON.parse(localStorage.getItem('fatya_cfg')||'null') || {year:'2026 / 2027'};
+function saveCfg() { localStorage.setItem('fatya_cfg', JSON.stringify(CFG)); }
+function storageKey() { return 'fatya_' + CFG.year.replace(/\s+/g,'_').replace(/\//g,'-'); }
+
+// ── helpers ───────────────────────────────��───────────────────────────────
+function escapeHtml(text) {
+  if (text == null) return '';
+  return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizeArabic(str) {
+  if (!str) return '';
+  return str.toLowerCase()
+    .replace(/[\u064B-\u065F\u0670\u0640]/g,'') // إزالة التشكيل
+    .replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ة/g,'ه');
+}
+function todayLocal() {
+  var d = new Date();
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function isValidPhone(num) {
+  if (!num) return true;
+  return /^0[5-7][0-9]{8}$/.test(num.replace(/\s/g,''));
+}
+function initials(s){ return (s||'').trim().split(/\s+/).slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase(); }
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2200); }
+
+var attendClass={'حضر':'b-present','منسحب':'b-withdraw','قائمة سوداء':'b-blacklist'};
+var decClass={'مقبول':'b-accepted','غير مقبول':'b-rejected'};
+
+// ── DB ────────────────────────────────────────────────────────────────────
+var DB = JSON.parse(localStorage.getItem(storageKey())||'null') || [
+  {id:1,regDate:'2026-09-01',lastName:'بلقاسم',firstName:'كريم',phone1:'0551234567',phone2:'',phone3:'',
+   children:[{name:'أمين',level:'ابتدائي',year:'3',attendance:'حضر',decision:'مقبول',notes:''}]},
+  {id:2,regDate:'2026-09-02',lastName:'حميدي',firstName:'نادية',phone1:'0771234567',phone2:'0661234567',phone3:'',
+   children:[
+     {name:'سارة',level:'متوسط',year:'1',attendance:'تأجيل',decision:'',notes:'ظروف صحية'},
+     {name:'عمر',level:'ابتدائي',year:'4',attendance:'حضر',decision:'مقبول',notes:''}
+   ]}
+];
+var nextId = Math.max(0,...DB.map(function(r){return r.id;})) + 1;
+var editing = null;
+var activeChip = '';
+
+function persist() { localStorage.setItem(storageKey(), JSON.stringify(DB)); }
+
+// ── year editor ───────────────────────────────────────────────────────────
+function openYearEditor() {
+  var html =
+    '<div class="overlay" id="overlay" onclick="overlayClick(event)">'+
+    '<div class="sheet" onclick="event.stopPropagation()">'+
+    '<div class="handle"></div>'+
+    '<h3>&#x1F4C5; تعديل العام الدراسي</h3>'+
+    '<div class="form-row"><label>العام الدراسي (مثال: 2026 / 2027)</label>'+
+    '<input id="f-year" value="'+escapeHtml(CFG.year)+'" placeholder="2026 / 2027"></div>'+
+    '<div class="sheet-actions">'+
+    '<button class="btn-cancel" onclick="closeForm()">إلغاء</button>'+
+    '<button class="btn-save" onclick="saveYear()">حفظ</button>'+
+    '</div></div></div>';
+  document.getElementById('formArea').innerHTML = html;
+}
+function saveYear() {
+  var v = document.getElementById('f-year').value.trim();
+  if (!v) return;
+  var oldKey = storageKey();
+  CFG.year = v;
+  saveCfg();
+  var newKey = storageKey();
+  if (oldKey !== newKey) {
+    var oldData = localStorage.getItem(oldKey);
+    if (oldData && !localStorage.getItem(newKey)) {
+      localStorage.setItem(newKey, oldData);
+    }
+  }
+  document.getElementById('year-lbl').textContent = 'تسجيلات التلاميذ الجدد — ' + v;
+  closeForm();
+  toast('&#x2705; تم تحديث العام الدراسي');
+  render();
+}
+
+// ── import / export ───────────────────────────────────────────────────────
+function exportData() {
+  var data = {cfg:CFG, db:DB, exportedAt:new Date().toISOString()};
+  var blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'fatya_backup_'+CFG.year.replace(/\s+/g,'_').replace(/\//g,'-')+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('&#x1F4BE; تم تصدير البيانات');
+}
+function importData() {
+  document.getElementById('importFile').click();
+}
+function handleImport(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var data = JSON.parse(ev.target.result);
+      if (data.db && Array.isArray(data.db)) {
+        if (data.cfg && data.cfg.year) {
+          CFG = data.cfg;
+          saveCfg();
+        }
+        DB = data.db;
+        nextId = Math.max(0,...DB.map(function(r){return r.id;})) + 1;
+        persist();
+        render();
+        toast('&#x2705; تم استيراد '+DB.length+' سجل');
+      } else {
+        alert('ملف غير صالح: يجب أن يحتوي على مصفوفة db');
+      }
+    } catch(err) {
+      alert('خطأ في قراءة الملف: '+err.message);
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ── delete all ────────────────────────────────────────────────────────────
+function deleteAll() {
+  var html =
+    '<div class="overlay" id="overlay" onclick="overlayClick(event)">'+
+    '<div class="sheet" onclick="event.stopPropagation()">'+
+    '<div class="handle"></div>'+
+    '<h3 style="color:var(--red)">&#x26A0;&#xFE0F; تأكيد الحذف الكامل</h3>'+
+    '<p style="font-size:14px;line-height:1.7;margin-bottom:16px;color:var(--muted)">'+
+    'سيتم حذف <strong style="color:var(--text)">جميع بيانات التلاميذ</strong> نهائياً.<br>'+
+    'هذا الإجراء <strong style="color:var(--red)">لا يمكن التراجع عنه</strong>.<br><br>'+
+    'اكتب كلمة <strong>حذف</strong> للتأكيد:</p>'+
+    '<div class="form-row"><input id="f-confirm" placeholder="اكتب: حذف"></div>'+
+    '<div class="sheet-actions">'+
+    '<button class="btn-cancel" onclick="closeForm()">إلغاء</button>'+
+    '<button class="btn-danger" onclick="confirmDeleteAll()" style="flex:2">&#x1F5D1; حذف نهائي</button>'+
+    '</div></div></div>';
+  document.getElementById('formArea').innerHTML = html;
+}
+function confirmDeleteAll() {
+  var v = document.getElementById('f-confirm').value.trim();
+  if (v !== 'حذف') { alert('يرجى كتابة كلمة "حذف" للتأكيد'); return; }
+  DB = [];
+  nextId = 1;
+  persist();
+  closeForm();
+  render();
+  toast('&#x1F5D1; تم حذف جميع البيانات');
+}
+
+// ── stats ─────────────────────────────────────────────────────────────────
+function renderStats() {
+  var all  = DB.length;
+  var pri  = DB.filter(function(r){return r.children.some(function(c){return c.level==='ابتدائي';});}).length;
+  var mid  = DB.filter(function(r){return r.children.some(function(c){return c.level==='متوسط';});}).length;
+  var acc  = DB.filter(function(r){return r.children.some(function(c){return c.decision==='مقبول';});}).length;
+  var accP = DB.filter(function(r){return r.children.some(function(c){return c.decision==='مقبول'&&c.level==='ابتدائي';});}).length;
+  var accM = DB.filter(function(r){return r.children.some(function(c){return c.decision==='مقبول'&&c.level==='متوسط';});}).length;
+  var rej  = DB.filter(function(r){return r.children.some(function(c){return c.decision==='غير مقبول';});}).length;
+  var wit  = DB.filter(function(r){return r.children.some(function(c){return c.attendance==='منسحب';});}).length;
+  var bl   = DB.filter(function(r){return r.children.some(function(c){return c.attendance==='قائمة سوداء';});}).length;
+
+  document.getElementById('stats').innerHTML =
+    '<div class="stat-big">'+
+      '<div class="stat-big-top">'+
+        '<div><div class="stat-big-num" style="color:var(--text)">'+all+'</div>'+
+        '<div class="stat-big-lbl">المسجلون</div></div>'+
+        '<span style="font-size:30px">&#x1F468;&#x200D;&#x1F467;&#x200D;&#x1F466;</span>'+
+      '</div>'+
+      '<div class="stat-big-subs">'+
+        '<div class="stat-sub"><div class="stat-sub-lbl">ابتدائي</div><div class="stat-sub-num" style="color:var(--blue)">'+pri+'</div></div>'+
+        '<div class="stat-sub"><div class="stat-sub-lbl">متوسط</div><div class="stat-sub-num" style="color:var(--blue)">'+mid+'</div></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="stat-big">'+
+      '<div class="stat-big-top">'+
+        '<div><div class="stat-big-num" style="color:var(--green)">'+acc+'</div>'+
+        '<div class="stat-big-lbl">المقبولون</div></div>'+
+        '<span style="font-size:30px">&#x2705;</span>'+
+      '</div>'+
+      '<div class="stat-big-subs">'+
+        '<div class="stat-sub"><div class="stat-sub-lbl">ابتدائي</div><div class="stat-sub-num" style="color:var(--green)">'+accP+'</div></div>'+
+        '<div class="stat-sub"><div class="stat-sub-lbl">متوسط</div><div class="stat-sub-num" style="color:var(--green)">'+accM+'</div></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="stat-small"><div><div class="stat-small-num" style="color:var(--red)">'+rej+'</div><div class="stat-small-lbl">غير المقبولين</div></div><span style="font-size:24px">&#x274C;</span></div>'+
+    '<div class="stat-small"><div><div class="stat-small-num" style="color:var(--purple)">'+wit+'</div><div class="stat-small-lbl">المنسحبون</div></div><span style="font-size:24px">&#x1F6AA;</span></div>'+
+    '<div class="stat-small"><div><div class="stat-small-num" style="color:#111">'+bl+'</div><div class="stat-small-lbl">القائمة السوداء</div></div><span style="font-size:24px">&#x1F6AB;</span></div>';
+}
+
+// ── chips ─────────────────────────────────────────────────────────────────
+function setChip(el, val) {
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+  activeChip = val;
+  renderCards();
+}
+
+function clearSearch() {
+  document.getElementById('search').value = '';
+  renderCards();
+}
+
+// ── sort ──────────────────────────────────────────────────────────────────
+function sortRecords(rows) {
+  var sortBy = document.getElementById('sortBy').value;
+  return rows.slice().sort(function(a,b){
+    if (sortBy === 'date-desc') return (b.regDate||'') > (a.regDate||'') ? 1 : -1;
+    if (sortBy === 'date-asc')  return (a.regDate||'') > (b.regDate||'') ? 1 : -1;
+    var na = (a.lastName+' '+a.firstName).trim();
+    var nb = (b.lastName+' '+b.firstName).trim();
+    if (sortBy === 'name-asc') return na.localeCompare(nb,'ar');
+    if (sortBy === 'name-desc') return nb.localeCompare(na,'ar');
+    return 0;
+  });
+}
+
+// ── filter ────────────────────────────────────────────────────────────────
+function matchRecord(r, q, chip) {
+  if (chip) {
+    var hasLevel   = chip==='ابتدائي'||chip==='متوسط';
+    var hasDec     = chip==='مقبول'||chip==='غير مقبول';
+    var hasAttend  = chip==='منسحب'||chip==='قائمة سوداء';
+    if (hasLevel  && !r.children.some(function(c){return c.level===chip;})) return false;
+    if (hasDec    && !r.children.some(function(c){return c.decision===chip;})) return false;
+    if (hasAttend && !r.children.some(function(c){return c.attendance===chip;})) return false;
+  }
+  if (q) {
+    var nq = normalizeArabic(q);
+    var name = normalizeArabic(r.lastName+' '+r.firstName);
+    if (name.includes(nq)) return true;
+    var phones = (r.phone1||'')+(r.phone2||'')+(r.phone3||'');
+    if (phones.includes(q)) return true;
+    if (r.children.some(function(c){
+      return normalizeArabic(c.level).includes(nq) ||
+             c.year===q ||
+             normalizeArabic(c.name).includes(nq) ||
+             normalizeArabic(c.decision||'').includes(nq) ||
+             normalizeArabic(c.attendance||'').includes(nq);
+    })) return true;
+    return false;
+  }
+  return true;
+}
+
+// ── card HTML ─────────────────────────────────────────────────────────────
+function cardHTML(r) {
+  var fullName = escapeHtml(r.lastName+' '+r.firstName);
+  var av = escapeHtml(initials(r.lastName));
+  var phones = '';
+  if (r.phone1) phones += '<a class="phone-link" href="tel:'+escapeHtml(r.phone1)+'">&#x1F4DE; '+escapeHtml(r.phone1)+'</a> ';
+  if (r.phone2) phones += '<a class="phone-link" href="tel:'+escapeHtml(r.phone2)+'">&#x1F4DE; '+escapeHtml(r.phone2)+'</a>';
+  if (r.phone3) phones += ' <a class="phone-link" href="tel:'+escapeHtml(r.phone3)+'">&#x1F4DE; '+escapeHtml(r.phone3)+'</a>';
+
+  var kids = r.children.map(function(c){
+    var ab = c.attendance ? '<span class="badge '+(attendClass[c.attendance]||'')+'">'+escapeHtml(c.attendance)+'</span>' : '';
+    var db = c.decision   ? '<span class="badge '+(decClass[c.decision]||'')+'">'+escapeHtml(c.decision)+'</span>' : '';
+    return '<div class="child-row">'+
+      '<div class="child-name">'+escapeHtml(c.name)+'</div>'+
+      '<div class="child-level">'+escapeHtml(c.level)+' — سنة '+escapeHtml(c.year)+'</div>'+
+      '<div class="child-badges">'+ab+db+(c.notes?'<span class="badge b-reg">'+escapeHtml(c.notes)+'</span>':'')+'</div>'+
+    '</div>';
+  }).join('');
+
+  return '<div class="pcard">'+
+    '<div class="pcard-header">'+
+      '<div class="avatar">'+av+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="pcard-name">'+fullName+'</div>'+
+        '<div class="phones">'+phones+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="pcard-meta">'+
+      '<span class="badge b-reg">&#x1F4CB; '+escapeHtml(r.regDate)+'</span>'+
+      '<span class="badge b-reg">&#x1F476; '+r.children.length+(r.children.length===1?' ابن':' أبناء')+'</span>'+
+    '</div>'+
+    '<div class="children">'+kids+'</div>'+
+    '<div class="pcard-actions">'+
+      '<button class="act-btn" onclick="openForm('+r.id+')">&#x270F; تعديل</button>'+
+      '<button class="act-btn danger" onclick="delRecord('+r.id+')">&#x1F5D1; حذف</button>'+
+    '</div>'+
+  '</div>';
+}
+
+// ── render cards ──────────────────────────────────────────────────────────
+function renderCards() {
+  var q = (document.getElementById('search').value||'').trim();
+  var rows = DB.filter(function(r){return matchRecord(r, q, activeChip);});
+  rows = sortRecords(rows);
+  document.getElementById('cnt').textContent = rows.length;
+  document.getElementById('cards').innerHTML = rows.length
+    ? rows.map(cardHTML).join('')
+    : '<div class="empty">لا توجد نتائج</div>';
+}
+
+function render() { renderStats(); renderCards(); updateYearLabel(); }
+
+function updateYearLabel() {
+  document.getElementById('year-lbl').textContent = 'تسجيلات التلاميذ الجدد — '+CFG.year;
+}
+
+// ── form children ─────────────────────────────────────────────────────────
+var formChildren = [];
+
+function yearsOpts(level, sel) {
+  var n = level==='متوسط' ? 4 : 5;
+  var h = '';
+  for (var i=1;i<=n;i++) h += '<option'+(String(sel)===String(i)?' selected':'')+'>'+i+'</option>';
+  return h;
+}
+
+function childForm(c, i) {
+  return '<div class="children-form" id="cf-'+i+'">'+
+    '<div class="cf-title">التلميذ '+(i+1)+'</div>'+
+    (i>0?'<button class="btn-rm" onclick="rmChild('+i+')">&#x2715; حذف</button>':'')+
+    '<div class="form-row"><label>الاسم *</label><input id="cn-'+i+'" value="'+escapeHtml(c.name||'')+'" placeholder="اسم التلميذ"></div>'+
+    '<div class="form-grid">'+
+    '<div class="form-row"><label>الطور *</label><select id="cl-'+i+'" onchange="chgLevel('+i+')">'+
+    '<option'+(c.level==='ابتدائي'?' selected':'')+'>ابتدائي</option>'+
+    '<option'+(c.level==='متوسط'?' selected':'')+'>متوسط</option>'+
+    '</select></div>'+
+    '<div class="form-row"><label>السنة *</label><select id="cy-'+i+'">'+yearsOpts(c.level||'ابتدائي',c.year||'1')+'</select></div>'+
+    '</div>'+
+    '<div class="form-grid">'+
+    '<div class="form-row"><label>الحالة</label><select id="ca-'+i+'">'+
+    '<option value=""'+(!c.attendance?' selected':'')+'>— اختر —</option>'+
+    '<option'+(c.attendance==='حضر'?' selected':'')+'>حضر</option>'+
+    '<option'+(c.attendance==='منسحب'?' selected':'')+'>منسحب</option>'+
+    '<option'+(c.attendance==='قائمة سوداء'?' selected':'')+'>قائمة سوداء</option>'+
+    '</select></div>'+
+    '<div class="form-row"><label>رد الإدارة</label><select id="cd-'+i+'">'+
+    '<option value=""'+(!c.decision?' selected':'')+'>— في الانتظار —</option>'+
+    '<option'+(c.decision==='مقبول'?' selected':'')+'>مقبول</option>'+
+    '<option'+(c.decision==='غير مقبول'?' selected':'')+'>غير مقبول</option>'+
+    '</select></div></div>'+
+    '<div class="form-row"><label>ملاحظات</label><textarea id="cno-'+i+'" rows="3" placeholder="ملاحظات..." style="resize:vertical;min-height:80px">'+escapeHtml(c.notes||'')+'</textarea></div>'+
+  '</div>';
+}
+
+function renderChildForms() {
+  document.getElementById('children-forms').innerHTML =
+    formChildren.map(function(c,i){return childForm(c,i);}).join('');
+}
+
+function chgLevel(i) {
+  var level = document.getElementById('cl-'+i).value;
+  var selEl = document.getElementById('cy-'+i);
+  var current = selEl ? selEl.value : '1';
+  var max = level==='متوسط' ? 4 : 5;
+  var newVal = parseInt(current,10) > max ? String(max) : current;
+  document.getElementById('cy-'+i).innerHTML = yearsOpts(level, newVal);
+}
+
+function saveInputs() {
+  for (var i=0;i<formChildren.length;i++) {
+    var cn = document.getElementById('cn-'+i);
+    if (!cn) continue;
+    formChildren[i].name       = cn.value.trim();
+    formChildren[i].level      = document.getElementById('cl-'+i).value;
+    formChildren[i].year       = document.getElementById('cy-'+i).value;
+    formChildren[i].attendance = document.getElementById('ca-'+i).value;
+    formChildren[i].decision   = document.getElementById('cd-'+i).value;
+    formChildren[i].notes      = document.getElementById('cno-'+i).value.trim();
+  }
+}
+
+function addChild() {
+  saveInputs();
+  formChildren.push({name:'',level:'ابتدائي',year:'1',attendance:'',decision:'',notes:''});
+  renderChildForms();
+  var s=document.querySelector('.sheet');
+  if(s) setTimeout(function(){s.scrollTop=s.scrollHeight;},50);
+}
+
+function rmChild(i) {
+  saveInputs();
+  formChildren.splice(i,1);
+  renderChildForms();
+}
+
+// ── open / save / close form ──────────────────────────────────────────────
+function openForm(id) {
+  editing = id ? DB.find(function(r){return r.id===id;}) : null;
+  var r = editing || {regDate:todayLocal(),lastName:'',firstName:'',phone1:'',phone2:'',phone3:'',children:[]};
+  formChildren = r.children.map(function(c){return Object.assign({},c);});
+  if (!formChildren.length) formChildren.push({name:'',level:'ابتدائي',year:'1',attendance:'',decision:'',notes:''});
+
+  document.getElementById('formArea').innerHTML =
+    '<div class="overlay" id="overlay" onclick="overlayClick(event)">'+
+    '<div class="sheet" onclick="event.stopPropagation()">'+
+    '<div class="handle"></div>'+
+    '<h3>'+(editing?'&#x270F; تعديل بيانات الولي':'&#x2795; تسجيل ولي جديد')+'</h3>'+
+    '<div class="form-row"><label>&#x1F4CB; تاريخ التسجيل</label><input id="f-reg" type="date" value="'+escapeHtml(r.regDate||'')+'"></div>'+
+    '<div class="form-grid">'+
+    '<div class="form-row"><label>اللقب *</label><input id="f-last" value="'+escapeHtml(r.lastName||'')+'" placeholder="اللقب"></div>'+
+    '<div class="form-row"><label>الاسم *</label><input id="f-first" value="'+escapeHtml(r.firstName||'')+'" placeholder="الاسم"></div>'+
+    '</div>'+
+    '<div class="form-grid">'+
+    '<div class="form-row"><label>&#x1F4DE; هاتف 1 *</label><input id="f-ph1" value="'+escapeHtml(r.phone1||'')+'" placeholder="05xxxxxxxx" type="tel" dir="ltr"></div>'+
+    '<div class="form-row"><label>&#x1F4DE; هاتف 2</label><input id="f-ph2" value="'+escapeHtml(r.phone2||'')+'" placeholder="اختياري" type="tel" dir="ltr"></div>'+
+    '</div>'+
+    '<div class="form-row"><label>&#x1F4DE; هاتف 3</label><input id="f-ph3" value="'+escapeHtml(r.phone3||'')+'" placeholder="اختياري" type="tel" dir="ltr"></div>'+
+    '<hr class="divider">'+
+    '<h3 style="font-size:15px;margin-bottom:12px">&#x1F468;&#x200D;&#x1F467;&#x200D;&#x1F466; الأبناء</h3>'+
+    '<div id="children-forms"></div>'+
+    '<button class="btn-add-child" onclick="addChild()">&#xFF0B; إضافة ابن آخر</button>'+
+    '<div class="sheet-actions">'+
+    '<button class="btn-cancel" onclick="closeForm()">إلغاء</button>'+
+    '<button class="btn-save" onclick="saveForm()">&#x1F4BE; حفظ</button>'+
+    '</div></div></div>';
+
+  renderChildForms();
+}
+
+function overlayClick(e){ if(e.target.id==='overlay') closeForm(); }
+function closeForm(){ document.getElementById('formArea').innerHTML=''; }
+
+// ✅ ── FIXED saveForm function ──────────────────────────────────────────────
+function saveForm() {
+  var last  = document.getElementById('f-last').value.trim();
+  var first = document.getElementById('f-first').value.trim();
+  var ph1   = document.getElementById('f-ph1').value.trim();
+  
+  if (!last||!first||!ph1) { 
+    alert('⚠️ يرجى تعبئة اللقب والاسم ورقم الهاتف'); 
+    return; 
+  }
+  
+  if (!isValidPhone(ph1)) { 
+    alert('⚠️ رقم الهاتف 1 غير صالح. يجب أن يبدأ بـ 05 أو 06 أو 07 ويتكون من 10 أرقام'); 
+    return; 
+  }
+  
+  var ph2 = document.getElementById('f-ph2').value.trim();
+  var ph3 = document.getElementById('f-ph3').value.trim();
+  
+  if (ph2 && !isValidPhone(ph2)) { 
+    alert('⚠️ رقم الهاتف 2 غير صالح'); 
+    return; 
+  }
+  if (ph3 && !isValidPhone(ph3)) { 
+    alert('⚠️ رقم الهاتف 3 غير صالح'); 
+    return; 
+  }
+
+  saveInputs();
+  var kids = formChildren.filter(function(c){return c.name!=='';});
+  
+  if (!kids.length) { 
+    alert('⚠️ يرجى إضافة ابن واحد على الأقل'); 
+    return; 
+  }
+  
+  var obj = {
+    regDate: document.getElementById('f-reg').value,
+    lastName: last, 
+    firstName: first,
+    phone1: ph1, 
+    phone2: ph2, 
+    phone3: ph3,
+    children: kids
+  };
+  
+  if (editing) { 
+    Object.assign(editing, obj); 
+    toast('✅ تم التعديل'); 
+  }
+  else { 
+    obj.id = nextId++; 
+    DB.push(obj); 
+    toast('✅ تمت الإضافة'); 
+  }
+  
+  persist(); 
+  closeForm(); 
+  render();
+}
+
+// ── delete one ────────────────────────────────────────────────────────────
+function delRecord(id) {
+  if (!confirm('حذف هذا السجل نهائياً؟')) return;
+  DB = DB.filter(function(r){return r.id!==id;});
+  persist(); toast('&#x1F5D1; تم الحذف'); render();
+}
+
+// ── init ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
