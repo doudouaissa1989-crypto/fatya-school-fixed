@@ -28,20 +28,6 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 
 .pad{padding:12px 14px 0}
 
-/* stats */
-.stats{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.stat-big{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
-.stat-big-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.stat-big-num{font-size:32px;font-weight:700;line-height:1}
-.stat-big-lbl{font-size:13px;color:var(--muted);margin-top:3px}
-.stat-big-subs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.stat-sub{background:var(--bg);border-radius:var(--rs);padding:9px 12px;display:flex;align-items:center;justify-content:space-between}
-.stat-sub-lbl{font-size:12px;color:var(--muted)}
-.stat-sub-num{font-size:20px;font-weight:700}
-.stat-small{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
-.stat-small-lbl{font-size:13px;color:var(--muted)}
-.stat-small-num{font-size:22px;font-weight:700}
-
 /* search */
 .search-box{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);display:flex;align-items:center;gap:8px;padding:0 12px;margin-bottom:8px}
 .search-box input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;padding:11px 0;background:transparent;color:var(--text)}
@@ -116,15 +102,6 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .danger-zone p{font-size:12px;color:var(--red);margin-bottom:10px;line-height:1.5}
 .btn-danger{background:var(--red);color:#fff;border:none;border-radius:var(--rs);padding:10px 16px;font-size:14px;font-family:inherit;cursor:pointer;font-weight:700;width:100%;min-height:44px}
 
-/* import/export */
-.tools-zone{margin-top:16px;background:var(--blue-bg);border:1px solid #b8d4f0;border-radius:var(--r);padding:14px}
-.tools-zone h4{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:8px}
-.tools-zone p{font-size:12px;color:var(--blue);margin-bottom:10px;line-height:1.5}
-.tools-actions{display:flex;gap:8px}
-.tools-actions button{flex:1;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);padding:10px;font-size:14px;font-family:inherit;cursor:pointer;font-weight:700;min-height:44px}
-.tools-actions button.export-btn{background:var(--green);color:#fff}
-.tools-actions button.import-btn{background:var(--blue);color:#fff}
-
 /* sort bar */
 .sort-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .sort-bar label{font-size:12px;color:var(--muted);font-weight:600}
@@ -135,7 +112,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 
 /* print */
 @media print {
-  .topbar, .search-box, .chips, .danger-zone, .tools-zone, .sort-bar, .pcard-actions { display:none !important; }
+  .topbar, .search-box, .chips, .danger-zone, .sort-bar, .pcard-actions { display:none !important; }
   .pcard { break-inside: avoid; page-break-inside: avoid; border:1px solid #ccc; }
   body { background:#fff; }
 }
@@ -151,8 +128,6 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     <button class="btn-add" onclick="openForm()">&#xFF0B; جديد</button>
   </div>
   <div class="pad">
-    <div class="stats" id="stats"></div>
-
     <div class="search-box">
       <span style="color:var(--muted);font-size:18px">&#x2315;</span>
       <input type="search" id="search" placeholder="ابحث بالاسم أو الطور أو الحالة..." oninput="renderCards()">
@@ -185,17 +160,6 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     </div>
     <div id="cards"></div>
 
-    <!-- tools -->
-    <div class="tools-zone">
-      <h4>&#x1F4E4; نسخ احتياطي</h4>
-      <p>صدر بياناتك إلى ملف JSON أو استورد بيانات سابقة قبل حذفها.</p>
-      <div class="tools-actions">
-        <button class="export-btn" onclick="exportData()">&#x1F4BE; تصدير</button>
-        <button class="import-btn" onclick="importData()">&#x1F4C2; استيراد</button>
-      </div>
-      <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
-    </div>
-
     <!-- danger zone -->
     <div class="danger-zone">
       <h4>&#x26A0;&#xFE0F; منطقة الخطر</h4>
@@ -214,7 +178,7 @@ var CFG = JSON.parse(localStorage.getItem('fatya_cfg')||'null') || {year:'2026 /
 function saveCfg() { localStorage.setItem('fatya_cfg', JSON.stringify(CFG)); }
 function storageKey() { return 'fatya_' + CFG.year.replace(/\s+/g,'_').replace(/\//g,'-'); }
 
-// ── helpers ───────────────────────────────��───────────────────────────────
+// ── helpers ───────────────────────────────────────────────────────────────
 function escapeHtml(text) {
   if (text == null) return '';
   return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -292,51 +256,6 @@ function saveYear() {
   render();
 }
 
-// ── import / export ───────────────────────────────────────────────────────
-function exportData() {
-  var data = {cfg:CFG, db:DB, exportedAt:new Date().toISOString()};
-  var blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'fatya_backup_'+CFG.year.replace(/\s+/g,'_').replace(/\//g,'-')+'.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast('&#x1F4BE; تم تصدير البيانات');
-}
-function importData() {
-  document.getElementById('importFile').click();
-}
-function handleImport(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    try {
-      var data = JSON.parse(ev.target.result);
-      if (data.db && Array.isArray(data.db)) {
-        if (data.cfg && data.cfg.year) {
-          CFG = data.cfg;
-          saveCfg();
-        }
-        DB = data.db;
-        nextId = Math.max(0,...DB.map(function(r){return r.id;})) + 1;
-        persist();
-        render();
-        toast('&#x2705; تم استيراد '+DB.length+' سجل');
-      } else {
-        alert('ملف غير صالح: يجب أن يحتوي على مصفوفة db');
-      }
-    } catch(err) {
-      alert('خطأ في قراءة الملف: '+err.message);
-    }
-    e.target.value = '';
-  };
-  reader.readAsText(file);
-}
-
 // ── delete all ────────────────────────────────────────────────────────────
 function deleteAll() {
   var html =
@@ -347,7 +266,7 @@ function deleteAll() {
     '<p style="font-size:14px;line-height:1.7;margin-bottom:16px;color:var(--muted)">'+
     'سيتم حذف <strong style="color:var(--text)">جميع بيانات التلاميذ</strong> نهائياً.<br>'+
     'هذا الإجراء <strong style="color:var(--red)">لا يمكن التراجع عنه</strong>.<br><br>'+
-    'اكتب كلمة <strong>حذف</strong> للتأكيد:</p>'+
+    'اكتب كلمة <strong>حذف</strong> ل��تأكيد:</p>'+
     '<div class="form-row"><input id="f-confirm" placeholder="اكتب: حذف"></div>'+
     '<div class="sheet-actions">'+
     '<button class="btn-cancel" onclick="closeForm()">إلغاء</button>'+
@@ -364,46 +283,6 @@ function confirmDeleteAll() {
   closeForm();
   render();
   toast('&#x1F5D1; تم حذف جميع البيانات');
-}
-
-// ── stats ─────────────────────────────────────────────────────────────────
-function renderStats() {
-  var all  = DB.length;
-  var pri  = DB.filter(function(r){return r.children.some(function(c){return c.level==='ابتدائي';});}).length;
-  var mid  = DB.filter(function(r){return r.children.some(function(c){return c.level==='متوسط';});}).length;
-  var acc  = DB.filter(function(r){return r.children.some(function(c){return c.decision==='مقبول';});}).length;
-  var accP = DB.filter(function(r){return r.children.some(function(c){return c.decision==='مقبول'&&c.level==='ابتدائي';});}).length;
-  var accM = DB.filter(function(r){return r.children.some(function(c){return c.decision==='مقبول'&&c.level==='متوسط';});}).length;
-  var rej  = DB.filter(function(r){return r.children.some(function(c){return c.decision==='غير مقبول';});}).length;
-  var wit  = DB.filter(function(r){return r.children.some(function(c){return c.attendance==='منسحب';});}).length;
-  var bl   = DB.filter(function(r){return r.children.some(function(c){return c.attendance==='قائمة سوداء';});}).length;
-
-  document.getElementById('stats').innerHTML =
-    '<div class="stat-big">'+
-      '<div class="stat-big-top">'+
-        '<div><div class="stat-big-num" style="color:var(--text)">'+all+'</div>'+
-        '<div class="stat-big-lbl">المسجلون</div></div>'+
-        '<span style="font-size:30px">&#x1F468;&#x200D;&#x1F467;&#x200D;&#x1F466;</span>'+
-      '</div>'+
-      '<div class="stat-big-subs">'+
-        '<div class="stat-sub"><div class="stat-sub-lbl">ابتدائي</div><div class="stat-sub-num" style="color:var(--blue)">'+pri+'</div></div>'+
-        '<div class="stat-sub"><div class="stat-sub-lbl">متوسط</div><div class="stat-sub-num" style="color:var(--blue)">'+mid+'</div></div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="stat-big">'+
-      '<div class="stat-big-top">'+
-        '<div><div class="stat-big-num" style="color:var(--green)">'+acc+'</div>'+
-        '<div class="stat-big-lbl">المقبولون</div></div>'+
-        '<span style="font-size:30px">&#x2705;</span>'+
-      '</div>'+
-      '<div class="stat-big-subs">'+
-        '<div class="stat-sub"><div class="stat-sub-lbl">ابتدائي</div><div class="stat-sub-num" style="color:var(--green)">'+accP+'</div></div>'+
-        '<div class="stat-sub"><div class="stat-sub-lbl">متوسط</div><div class="stat-sub-num" style="color:var(--green)">'+accM+'</div></div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="stat-small"><div><div class="stat-small-num" style="color:var(--red)">'+rej+'</div><div class="stat-small-lbl">غير المقبولين</div></div><span style="font-size:24px">&#x274C;</span></div>'+
-    '<div class="stat-small"><div><div class="stat-small-num" style="color:var(--purple)">'+wit+'</div><div class="stat-small-lbl">المنسحبون</div></div><span style="font-size:24px">&#x1F6AA;</span></div>'+
-    '<div class="stat-small"><div><div class="stat-small-num" style="color:#111">'+bl+'</div><div class="stat-small-lbl">القائمة السوداء</div></div><span style="font-size:24px">&#x1F6AB;</span></div>';
 }
 
 // ── chips ─────────────────────────────────────────────────────────────────
@@ -511,7 +390,7 @@ function renderCards() {
     : '<div class="empty">لا توجد نتائج</div>';
 }
 
-function render() { renderStats(); renderCards(); updateYearLabel(); }
+function render() { renderCards(); updateYearLabel(); }
 
 function updateYearLabel() {
   document.getElementById('year-lbl').textContent = 'تسجيلات التلاميذ الجدد — '+CFG.year;
